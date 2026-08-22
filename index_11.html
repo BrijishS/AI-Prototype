@@ -1,0 +1,1618 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>E.D.E.A.T.H. — Final System Prototype</title>
+<style>
+/* ==========================================================================
+   E.D.E.A.T.H. — Enhanced Digital Entity Assigned To Help
+   Final-system visual prototype. All actions simulated. No real device access.
+   ========================================================================== */
+
+:root{
+  --bg-0:#030405;
+  --bg-1:#06080A;
+  --bg-2:#090B0F;
+  --bg-3:#0D1015;
+  --bg-4:#12151B;
+  --red:#FF2525;
+  --red-bright:#FF4545;
+  --red-deep:#7A1018;
+  --border:#282D36;
+  --text:#F4F4F5;
+  --text-2:#9CA3AF;
+  --green:#00E676;
+  --amber:#FFB300;
+  --critical:#FF3030;
+  --blue:#4DA3FF;
+  --mono: 'JetBrains Mono','SFMono-Regular',Consolas,'Courier New',monospace;
+  --sans: 'Inter','Segoe UI',system-ui,-apple-system,sans-serif;
+}
+
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{
+  background:var(--bg-0);
+  color:var(--text);
+  font-family:var(--sans);
+  min-height:100vh;
+  scroll-behavior:smooth;
+}
+body{
+  background:
+    radial-gradient(ellipse 1200px 600px at 50% -10%, rgba(255,37,37,0.06), transparent 60%),
+    linear-gradient(180deg,var(--bg-0),var(--bg-1) 40%,var(--bg-0));
+  overflow-x:hidden;
+}
+::selection{background:var(--red-deep);color:#fff;}
+::-webkit-scrollbar{width:9px;height:9px;}
+::-webkit-scrollbar-track{background:var(--bg-1);}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:6px;}
+::-webkit-scrollbar-thumb:hover{background:var(--red-deep);}
+
+a,button,input,select{font-family:inherit;color:inherit;}
+button{cursor:pointer;background:none;border:none;}
+button:focus-visible, a:focus-visible, input:focus-visible{
+  outline:2px solid var(--red-bright);
+  outline-offset:2px;
+}
+
+@media (prefers-reduced-motion: reduce){
+  *{animation-duration:0.01ms !important;animation-iteration-count:1 !important;transition-duration:0.01ms !important;}
+}
+
+/* ---------- utility panel style ---------- */
+.panel{
+  background:linear-gradient(160deg, rgba(18,21,27,0.85), rgba(9,11,15,0.9));
+  border:1px solid var(--border);
+  border-radius:10px;
+  position:relative;
+  backdrop-filter:blur(6px);
+}
+.panel::before{
+  content:"";
+  position:absolute;inset:0;
+  border-radius:10px;
+  padding:1px;
+  background:linear-gradient(135deg, rgba(255,37,37,0.25), transparent 40%, transparent 70%, rgba(255,37,37,0.12));
+  -webkit-mask:linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite:xor;
+  mask-composite:exclude;
+  pointer-events:none;
+}
+.panel-head{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:14px 18px;border-bottom:1px solid var(--border);
+}
+.panel-title{
+  font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--text-2);
+  display:flex;align-items:center;gap:8px;font-weight:600;
+}
+.panel-title .dot{width:6px;height:6px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green);}
+.panel-body{padding:18px;}
+
+.led{width:7px;height:7px;border-radius:50%;display:inline-block;flex-shrink:0;}
+.led.green{background:var(--green);box-shadow:0 0 8px var(--green);animation:blink 2.4s ease-in-out infinite;}
+.led.amber{background:var(--amber);box-shadow:0 0 8px var(--amber);animation:blink 1.6s ease-in-out infinite;}
+.led.red{background:var(--critical);box-shadow:0 0 8px var(--critical);animation:blink 1s ease-in-out infinite;}
+.led.blue{background:var(--blue);box-shadow:0 0 8px var(--blue);}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:.35;}}
+
+.badge{
+  font-family:var(--mono);font-size:10px;letter-spacing:1px;
+  padding:3px 9px;border-radius:20px;border:1px solid var(--border);
+  display:inline-flex;align-items:center;gap:6px;text-transform:uppercase;
+  color:var(--text-2);white-space:nowrap;
+}
+.badge.ok{border-color:rgba(0,230,118,0.35);color:var(--green);background:rgba(0,230,118,0.06);}
+.badge.warn{border-color:rgba(255,179,0,0.35);color:var(--amber);background:rgba(255,179,0,0.06);}
+.badge.crit{border-color:rgba(255,48,48,0.4);color:var(--critical);background:rgba(255,48,48,0.07);}
+.badge.info{border-color:rgba(77,163,255,0.35);color:var(--blue);background:rgba(77,163,255,0.06);}
+
+.btn{
+  font-family:var(--mono);font-size:11px;letter-spacing:1px;text-transform:uppercase;
+  padding:10px 16px;border-radius:6px;border:1px solid var(--border);
+  color:var(--text);background:var(--bg-3);transition:all .15s ease;
+}
+.btn:hover{border-color:var(--red);color:var(--red-bright);box-shadow:0 0 14px rgba(255,37,37,0.15);}
+.btn.primary{background:linear-gradient(135deg,var(--red-deep),var(--red));border-color:var(--red);color:#fff;}
+.btn.primary:hover{box-shadow:0 0 20px rgba(255,37,37,0.4);}
+.btn.ghost{background:transparent;}
+.btn.small{padding:6px 11px;font-size:10px;}
+.btn:disabled{opacity:.4;cursor:not-allowed;}
+
+.grid{display:grid;gap:16px;}
+.grid-2{grid-template-columns:repeat(2,1fr);}
+.grid-3{grid-template-columns:repeat(3,1fr);}
+.grid-4{grid-template-columns:repeat(4,1fr);}
+@media (max-width:1100px){.grid-4{grid-template-columns:repeat(2,1fr);}.grid-3{grid-template-columns:repeat(2,1fr);}}
+@media (max-width:680px){.grid-2,.grid-3,.grid-4{grid-template-columns:1fr;}}
+
+.kv{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px dashed rgba(255,255,255,0.06);font-size:12.5px;}
+.kv:last-child{border-bottom:none;}
+.kv .k{color:var(--text-2);}
+.kv .v{font-family:var(--mono);}
+
+.progress{height:6px;border-radius:4px;background:var(--bg-1);border:1px solid var(--border);overflow:hidden;}
+.progress > span{display:block;height:100%;background:linear-gradient(90deg,var(--red-deep),var(--red-bright));border-radius:4px;transition:width .6s ease;}
+.progress.green > span{background:linear-gradient(90deg,#0a5a35,var(--green));}
+.progress.amber > span{background:linear-gradient(90deg,#7a5a00,var(--amber));}
+
+/* ---------- Authentication Overlay ---------- */
+#auth-overlay{
+  position:fixed;inset:0;z-index:999;
+  background:radial-gradient(ellipse at center, var(--bg-2), var(--bg-0) 75%);
+  display:flex;align-items:center;justify-content:center;flex-direction:column;
+  transition:opacity .7s ease, visibility .7s ease;
+}
+#auth-overlay.hidden{opacity:0;visibility:hidden;pointer-events:none;}
+.auth-ring-wrap{position:relative;width:220px;height:220px;display:flex;align-items:center;justify-content:center;margin-bottom:34px;}
+.auth-ring{position:absolute;border-radius:50%;border:1px solid var(--border);}
+.auth-ring.r1{inset:0;border-color:rgba(255,37,37,0.25);animation:spin 12s linear infinite;}
+.auth-ring.r2{inset:20px;border-color:rgba(255,37,37,0.4);border-style:dashed;animation:spin 9s linear infinite reverse;}
+.auth-ring.r3{inset:44px;border-top-color:var(--red-bright);border-right-color:var(--red-bright);animation:spin 3.5s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.auth-core{
+  width:90px;height:90px;border-radius:50%;
+  background:radial-gradient(circle at 35% 30%, var(--red-bright), var(--red-deep) 70%, transparent 100%);
+  box-shadow:0 0 45px rgba(255,37,37,0.55),0 0 90px rgba(255,37,37,0.25);
+  animation:pulse 2.6s ease-in-out infinite;
+}
+@keyframes pulse{0%,100%{transform:scale(1);opacity:1;}50%{transform:scale(0.9);opacity:0.75;}}
+.auth-title{font-family:var(--mono);font-size:34px;letter-spacing:10px;color:var(--text);text-shadow:0 0 20px rgba(255,37,37,0.4);}
+.auth-sub{font-size:11px;letter-spacing:3px;color:var(--text-2);margin-top:10px;text-transform:uppercase;}
+.auth-status{
+  font-family:var(--mono);font-size:12px;color:var(--text-2);margin-top:28px;min-height:90px;width:340px;text-align:left;
+}
+.auth-status .line{opacity:0;transform:translateX(-6px);transition:all .35s ease;display:flex;gap:8px;align-items:center;padding:3px 0;}
+.auth-status .line.show{opacity:1;transform:none;}
+.auth-status .line .ok{color:var(--green);}
+.auth-buttons{display:flex;gap:14px;margin-top:30px;}
+
+/* ---------- App Shell ---------- */
+#app{display:none;min-height:100vh;flex-direction:column;}
+#app.ready{display:flex;}
+
+header.top{
+  position:sticky;top:0;z-index:50;
+  background:rgba(6,8,10,0.88);backdrop-filter:blur(10px);
+  border-bottom:1px solid var(--border);
+  padding:12px 24px;
+}
+.top-row{display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap;}
+.brand{display:flex;align-items:center;gap:14px;}
+.emblem{position:relative;width:44px;height:44px;flex-shrink:0;}
+.emblem .e-ring{position:absolute;inset:0;border-radius:50%;border:1.5px solid var(--red);border-top-color:transparent;animation:spin 4s linear infinite;}
+.emblem .e-ring2{position:absolute;inset:7px;border-radius:50%;border:1px solid rgba(255,37,37,0.4);}
+.emblem .e-dot{position:absolute;inset:15px;border-radius:50%;background:radial-gradient(circle at 35% 30%,var(--red-bright),var(--red-deep));box-shadow:0 0 12px rgba(255,37,37,0.7);animation:pulse 2.6s ease-in-out infinite;}
+.brand-text .name{font-family:var(--mono);font-size:19px;letter-spacing:5px;font-weight:700;}
+.brand-text .full{font-size:9.5px;color:var(--text-2);letter-spacing:1.5px;text-transform:uppercase;}
+.brand-text .proto{font-size:8.5px;color:var(--red-bright);letter-spacing:2px;text-transform:uppercase;font-family:var(--mono);margin-top:1px;}
+
+.status-strip{display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
+.clock-block{text-align:right;font-family:var(--mono);}
+.clock-block .time{font-size:17px;font-weight:600;letter-spacing:1px;}
+.clock-block .date{font-size:10px;color:var(--text-2);letter-spacing:1px;}
+
+nav.tabs{
+  display:flex;gap:2px;overflow-x:auto;padding:0 24px;
+  background:var(--bg-1);border-bottom:1px solid var(--border);
+  scrollbar-width:thin;
+}
+nav.tabs::-webkit-scrollbar{height:4px;}
+nav.tabs button{
+  padding:12px 16px;font-family:var(--mono);font-size:10.5px;letter-spacing:1.5px;
+  color:var(--text-2);border-bottom:2px solid transparent;white-space:nowrap;
+  text-transform:uppercase;transition:all .15s ease;
+}
+nav.tabs button:hover{color:var(--text);}
+nav.tabs button.active{color:var(--red-bright);border-bottom-color:var(--red-bright);background:rgba(255,37,37,0.05);}
+
+main{flex:1;padding:22px 24px 60px;max-width:1600px;margin:0 auto;width:100%;}
+.page{display:none;animation:fadein .35s ease;}
+.page.active{display:block;}
+@keyframes fadein{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:none;}}
+
+.page-header{margin-bottom:18px;}
+.page-header h1{font-family:var(--mono);font-size:15px;letter-spacing:3px;text-transform:uppercase;}
+.page-header p{font-size:12px;color:var(--text-2);margin-top:4px;}
+
+.sim-note{
+  font-family:var(--mono);font-size:10.5px;color:var(--amber);
+  border:1px dashed rgba(255,179,0,0.35);background:rgba(255,179,0,0.05);
+  padding:8px 12px;border-radius:6px;display:inline-flex;gap:8px;align-items:center;margin-bottom:14px;
+}
+
+footer.app-footer{
+  border-top:1px solid var(--border);background:var(--bg-1);
+  padding:34px 24px;text-align:center;
+}
+footer.app-footer .tag{font-family:var(--mono);font-size:20px;letter-spacing:6px;margin-bottom:10px;}
+footer.app-footer .lines{color:var(--text-2);font-size:11px;letter-spacing:2px;line-height:2;text-transform:uppercase;}
+footer.app-footer .sign{margin-top:16px;color:var(--red-bright);font-family:var(--mono);font-size:11px;letter-spacing:1px;}
+
+/* ---------- HOME / AI CORE visuals ---------- */
+.core-stage{
+  display:flex;align-items:center;justify-content:center;flex-direction:column;
+  padding:40px 20px;position:relative;
+}
+.core-wrap{position:relative;width:260px;height:260px;}
+.core-ring{position:absolute;border-radius:50%;border:1px solid var(--border);}
+.core-ring.a{inset:0;border-color:rgba(255,37,37,0.18);animation:spin 20s linear infinite;}
+.core-ring.b{inset:18px;border:1px dashed rgba(255,37,37,0.3);animation:spin 14s linear infinite reverse;}
+.core-ring.c{inset:38px;border-top-color:var(--red);border-right-color:var(--red);border-color:transparent;border-width:2px;animation:spin 6s linear infinite;}
+.core-ring.d{inset:58px;border-bottom-color:var(--red-bright);border-color:transparent;border-width:2px;animation:spin 4s linear infinite reverse;}
+.core-center{
+  position:absolute;inset:90px;border-radius:50%;
+  background:radial-gradient(circle at 35% 30%,var(--red-bright),var(--red-deep) 65%,transparent 100%);
+  box-shadow:0 0 60px rgba(255,37,37,0.55),0 0 120px rgba(255,37,37,0.2);
+  animation:pulse 3s ease-in-out infinite;
+  display:flex;align-items:center;justify-content:center;
+}
+.core-sweep{position:absolute;inset:0;border-radius:50%;overflow:hidden;opacity:.5;}
+.core-sweep::after{
+  content:"";position:absolute;inset:0;
+  background:conic-gradient(from 0deg, transparent 0deg, rgba(255,37,37,0.35) 18deg, transparent 40deg);
+  animation:spin 3.2s linear infinite;
+}
+.core-marker{position:absolute;width:5px;height:5px;border-radius:50%;background:var(--red-bright);box-shadow:0 0 6px var(--red-bright);}
+.core-particles span{
+  position:absolute;width:2.5px;height:2.5px;border-radius:50%;background:rgba(255,69,69,0.7);
+  animation:floaty 6s ease-in-out infinite;
+}
+@keyframes floaty{0%,100%{transform:translateY(0);opacity:.6;}50%{transform:translateY(-14px);opacity:1;}}
+.core-caption{text-align:center;margin-top:22px;}
+.core-caption .t1{font-family:var(--mono);font-size:22px;letter-spacing:6px;}
+.core-caption .t2{font-size:11px;color:var(--green);letter-spacing:2px;margin-top:6px;text-transform:uppercase;font-family:var(--mono);}
+.core-caption .t3{font-size:10px;color:var(--text-2);letter-spacing:1.5px;margin-top:2px;text-transform:uppercase;}
+
+/* ---------- Chat ---------- */
+.chat-wrap{display:flex;flex-direction:column;height:520px;}
+.chat-log{flex:1;overflow-y:auto;padding:18px;display:flex;flex-direction:column;gap:14px;}
+.msg{max-width:74%;display:flex;flex-direction:column;gap:4px;}
+.msg.ai{align-self:flex-start;}
+.msg.user{align-self:flex-end;align-items:flex-end;}
+.msg .bubble{padding:11px 15px;border-radius:12px;font-size:13.2px;line-height:1.5;}
+.msg.ai .bubble{background:var(--bg-3);border:1px solid var(--border);border-bottom-left-radius:3px;}
+.msg.user .bubble{background:linear-gradient(135deg,var(--red-deep),#4a0d12);border:1px solid rgba(255,37,37,0.3);border-bottom-right-radius:3px;}
+.msg .meta{font-family:var(--mono);font-size:9.5px;color:var(--text-2);letter-spacing:1px;padding:0 4px;}
+.typing{display:flex;gap:4px;padding:11px 15px;background:var(--bg-3);border:1px solid var(--border);border-radius:12px;border-bottom-left-radius:3px;width:fit-content;}
+.typing span{width:6px;height:6px;background:var(--red-bright);border-radius:50%;animation:typebounce 1.2s ease-in-out infinite;}
+.typing span:nth-child(2){animation-delay:.15s;}
+.typing span:nth-child(3){animation-delay:.3s;}
+@keyframes typebounce{0%,60%,100%{transform:translateY(0);opacity:.5;}30%{transform:translateY(-5px);opacity:1;}}
+.chat-input-row{
+  display:flex;gap:8px;padding:14px;border-top:1px solid var(--border);align-items:center;background:var(--bg-2);
+}
+.chat-input-row input{
+  flex:1;background:var(--bg-1);border:1px solid var(--border);border-radius:8px;
+  padding:11px 14px;font-size:13px;color:var(--text);
+}
+.chat-input-row input:focus{border-color:var(--red);outline:none;}
+.icon-btn{width:38px;height:38px;border-radius:8px;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;background:var(--bg-1);flex-shrink:0;font-size:15px;transition:.15s;}
+.icon-btn:hover{border-color:var(--red);color:var(--red-bright);}
+.chat-status-bar{display:flex;justify-content:space-between;padding:8px 14px;font-family:var(--mono);font-size:9.5px;color:var(--text-2);border-top:1px solid var(--border);letter-spacing:1px;}
+
+/* ---------- Voice ---------- */
+.mic-wrap{position:relative;width:180px;height:180px;margin:0 auto;display:flex;align-items:center;justify-content:center;}
+.mic-ring{position:absolute;border-radius:50%;border:1px solid rgba(255,37,37,0.25);}
+.mic-ring.m1{inset:0;}
+.mic-ring.m2{inset:22px;}
+.mic-ring.m3{inset:44px;}
+.mic-ring.listening{animation:ringpulse 1.6s ease-out infinite;}
+@keyframes ringpulse{0%{transform:scale(0.9);opacity:1;}100%{transform:scale(1.5);opacity:0;}}
+.mic-core{
+  width:80px;height:80px;border-radius:50%;
+  background:radial-gradient(circle at 35% 30%,var(--red-bright),var(--red-deep));
+  box-shadow:0 0 40px rgba(255,37,37,0.5);
+  display:flex;align-items:center;justify-content:center;font-size:26px;
+}
+.waveform{display:flex;align-items:center;justify-content:center;gap:3px;height:60px;margin:20px 0;}
+.waveform span{width:4px;background:linear-gradient(180deg,var(--red-bright),var(--red-deep));border-radius:3px;height:8px;animation:wave 1.1s ease-in-out infinite;}
+.waveform.idle span{animation:none;height:4px;opacity:.3;}
+.waveform span:nth-child(odd){animation-duration:1.4s;}
+@keyframes wave{0%,100%{height:8px;}50%{height:42px;}}
+.transcript-box{
+  font-family:var(--mono);font-size:12.5px;color:var(--text-2);
+  background:var(--bg-1);border:1px solid var(--border);border-radius:8px;padding:12px 14px;min-height:50px;
+}
+.transcript-box .cursor{display:inline-block;width:7px;height:13px;background:var(--red-bright);margin-left:2px;animation:blink 1s step-end infinite;vertical-align:middle;}
+
+/* ---------- Memory graph ---------- */
+.mem-graph{position:relative;height:380px;}
+.mem-node{
+  position:absolute;transform:translate(-50%,-50%);
+  font-family:var(--mono);font-size:10.5px;letter-spacing:1px;text-transform:uppercase;
+  padding:9px 14px;border-radius:20px;border:1px solid var(--border);background:var(--bg-2);
+  white-space:nowrap;cursor:default;transition:.2s;
+}
+.mem-node:hover{border-color:var(--red);color:var(--red-bright);box-shadow:0 0 14px rgba(255,37,37,0.2);}
+.mem-node.center{
+  background:linear-gradient(135deg,var(--red-deep),var(--red));color:#fff;border-color:var(--red);
+  font-size:13px;padding:14px 22px;box-shadow:0 0 30px rgba(255,37,37,0.4);
+}
+.mem-graph svg{position:absolute;inset:0;width:100%;height:100%;}
+.mem-graph line{stroke:rgba(255,37,37,0.22);stroke-width:1;stroke-dasharray:4 4;animation:dash 3s linear infinite;}
+@keyframes dash{to{stroke-dashoffset:-16;}}
+
+/* ---------- Phone mockup ---------- */
+.phone{
+  width:230px;border-radius:30px;border:6px solid var(--bg-4);background:var(--bg-1);
+  overflow:hidden;box-shadow:0 0 30px rgba(0,0,0,0.5), inset 0 0 0 1px var(--border);
+  margin:0 auto;
+}
+.phone-notch{height:20px;display:flex;align-items:center;justify-content:center;}
+.phone-notch::before{content:"";width:60px;height:5px;border-radius:4px;background:var(--bg-4);}
+.phone-screen{padding:12px;min-height:380px;}
+.phone-status{display:flex;justify-content:space-between;font-family:var(--mono);font-size:9px;color:var(--text-2);margin-bottom:10px;}
+.notif-card{background:var(--bg-2);border:1px solid var(--border);border-radius:10px;padding:9px 11px;margin-bottom:8px;}
+.notif-card .app{font-size:10.5px;font-weight:600;color:var(--red-bright);}
+.notif-card .msg{font-size:10.5px;color:var(--text-2);margin-top:2px;}
+
+/* ---------- Vision panels ---------- */
+.vision-cam{
+  height:220px;border-radius:8px;background:
+    repeating-linear-gradient(0deg, transparent, transparent 19px, rgba(255,37,37,0.05) 20px),
+    repeating-linear-gradient(90deg, transparent, transparent 19px, rgba(255,37,37,0.05) 20px),
+    linear-gradient(160deg,var(--bg-3),var(--bg-1));
+  border:1px solid var(--border);position:relative;overflow:hidden;
+}
+.vision-cam .box{position:absolute;border:1px solid var(--green);border-radius:4px;}
+.vision-cam .box .tag{position:absolute;top:-18px;left:0;font-family:var(--mono);font-size:9px;color:var(--green);background:rgba(0,0,0,0.6);padding:1px 5px;border-radius:3px;white-space:nowrap;}
+.vision-cam .scan-line{position:absolute;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--red-bright),transparent);animation:scandown 3.5s linear infinite;box-shadow:0 0 10px var(--red-bright);}
+@keyframes scandown{0%{top:0;}100%{top:100%;}}
+
+/* ---------- Radar / network diagram ---------- */
+.net-diagram{position:relative;height:340px;display:flex;align-items:center;justify-content:center;}
+.net-core{
+  width:100px;height:100px;border-radius:50%;background:radial-gradient(circle at 35% 30%,var(--red-bright),var(--red-deep));
+  display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:9px;letter-spacing:1px;text-align:center;
+  box-shadow:0 0 40px rgba(255,37,37,0.5);position:relative;z-index:2;
+}
+.net-node{
+  position:absolute;font-family:var(--mono);font-size:9.5px;letter-spacing:1px;
+  padding:8px 12px;border-radius:8px;border:1px solid var(--border);background:var(--bg-2);white-space:nowrap;z-index:2;
+}
+.net-diagram svg{position:absolute;inset:0;width:100%;height:100%;z-index:1;}
+.net-diagram line{stroke:rgba(0,230,118,0.35);stroke-width:1.4;stroke-dasharray:5 5;animation:dash 2.5s linear infinite;}
+
+/* ---------- toggle switch ---------- */
+.switch{position:relative;width:42px;height:22px;flex-shrink:0;}
+.switch input{opacity:0;width:0;height:0;position:absolute;}
+.switch label{
+  position:absolute;inset:0;background:var(--bg-1);border:1px solid var(--border);border-radius:20px;cursor:pointer;transition:.2s;
+}
+.switch label::after{content:"";position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:var(--text-2);transition:.2s;}
+.switch input:checked + label{background:rgba(0,230,118,0.15);border-color:var(--green);}
+.switch input:checked + label::after{transform:translateX(20px);background:var(--green);box-shadow:0 0 6px var(--green);}
+
+/* ---------- list rows ---------- */
+.row-list .row{
+  display:flex;align-items:center;justify-content:between;gap:12px;padding:11px 0;
+  border-bottom:1px solid rgba(255,255,255,0.05);font-size:12.5px;
+}
+.row-list .row:last-child{border-bottom:none;}
+.row-list .row .rt{flex:1;}
+.row-list .row .rt .title{font-weight:500;}
+.row-list .row .rt .sub{color:var(--text-2);font-size:11px;margin-top:2px;}
+
+/* ---------- log console ---------- */
+.log-console{
+  font-family:var(--mono);font-size:11.5px;line-height:1.9;max-height:340px;overflow-y:auto;padding:14px 16px;
+}
+.log-console .l{display:flex;gap:10px;}
+.log-console .l .tag{width:70px;flex-shrink:0;font-weight:700;}
+.log-console .l.INFO .tag{color:var(--green);}
+.log-console .l.WARNING .tag{color:var(--amber);}
+.log-console .l.ERROR .tag{color:var(--critical);}
+.log-console .l.SECURITY .tag{color:var(--blue);}
+.log-console .l .ts{color:var(--text-2);width:70px;flex-shrink:0;}
+
+/* ---------- toasts ---------- */
+#toast-stack{position:fixed;top:80px;right:20px;z-index:900;display:flex;flex-direction:column;gap:10px;max-width:320px;}
+.toast{
+  background:var(--bg-3);border:1px solid var(--border);border-left:3px solid var(--red);
+  border-radius:8px;padding:12px 14px;font-size:12px;display:flex;gap:10px;align-items:flex-start;
+  box-shadow:0 10px 30px rgba(0,0,0,0.4);
+  animation:toastin .3s ease;
+}
+.toast.out{animation:toastout .3s ease forwards;}
+@keyframes toastin{from{opacity:0;transform:translateX(30px);}to{opacity:1;transform:none;}}
+@keyframes toastout{to{opacity:0;transform:translateX(30px);}}
+.toast .ti{color:var(--red-bright);font-size:15px;line-height:1;margin-top:1px;}
+.toast .tt{font-weight:600;margin-bottom:2px;}
+.toast .ts{color:var(--text-2);font-size:11px;}
+
+/* ---------- misc ---------- */
+.section-label{font-family:var(--mono);font-size:10.5px;letter-spacing:2px;color:var(--text-2);text-transform:uppercase;margin:26px 0 12px;padding-bottom:8px;border-bottom:1px solid var(--border);}
+.section-label:first-child{margin-top:0;}
+.pill-row{display:flex;flex-wrap:wrap;gap:8px;}
+.metric-big{font-family:var(--mono);font-size:30px;font-weight:700;}
+.metric-label{font-size:10.5px;color:var(--text-2);letter-spacing:1.5px;text-transform:uppercase;margin-top:2px;}
+.select-field{
+  width:100%;background:var(--bg-1);border:1px solid var(--border);border-radius:6px;
+  padding:9px 12px;font-size:12.5px;color:var(--text);
+}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+@media (max-width:900px){.two-col{grid-template-columns:1fr;}}
+.hint{font-size:10.5px;color:var(--text-2);margin-top:8px;line-height:1.6;}
+</style>
+</head>
+<body>
+
+<!-- ============================== AUTH OVERLAY ============================== -->
+<div id="auth-overlay">
+  <div class="auth-ring-wrap">
+    <div class="auth-ring r1"></div>
+    <div class="auth-ring r2"></div>
+    <div class="auth-ring r3"></div>
+    <div class="auth-core"></div>
+  </div>
+  <div class="auth-title">E.D.E.A.T.H.</div>
+  <div class="auth-sub">Owner Authentication Required</div>
+  <div class="auth-status" id="auth-status"></div>
+  <div class="auth-buttons">
+    <button class="btn primary" id="verify-owner-btn">Verify Owner</button>
+    <button class="btn ghost" id="emergency-lock-btn">Emergency Lock</button>
+  </div>
+</div>
+
+<!-- ============================== TOASTS ============================== -->
+<div id="toast-stack"></div>
+
+<!-- ============================== APP SHELL ============================== -->
+<div id="app">
+
+  <header class="top">
+    <div class="top-row">
+      <div class="brand">
+        <div class="emblem"><div class="e-ring"></div><div class="e-ring2"></div><div class="e-dot"></div></div>
+        <div class="brand-text">
+          <div class="name">E.D.E.A.T.H.</div>
+          <div class="full">Enhanced Digital Entity Assigned To Help</div>
+          <div class="proto">Final System Prototype</div>
+        </div>
+      </div>
+      <div class="status-strip">
+        <span class="badge ok"><span class="led green"></span>Owner Authorized</span>
+        <span class="badge ok"><span class="led green"></span>System Online</span>
+        <span class="badge ok"><span class="led green"></span>AI Connected</span>
+        <span class="badge crit"><span class="led red"></span>Security Protected</span>
+        <span class="badge info"><span class="led blue"></span>Windows Connected</span>
+        <span class="badge info"><span class="led blue"></span>Android Connected</span>
+        <span class="badge ok"><span class="led green"></span>Network Online</span>
+      </div>
+      <div class="clock-block">
+        <div class="time" id="clock-time">--:--:--</div>
+        <div class="date" id="clock-date">-- ------- ----</div>
+      </div>
+    </div>
+  </header>
+
+  <nav class="tabs" id="tabs">
+    <button data-page="home" class="active">Home</button>
+    <button data-page="aicore">AI Core</button>
+    <button data-page="voice">Voice</button>
+    <button data-page="memory">Memory</button>
+    <button data-page="windows">Windows</button>
+    <button data-page="android">Android</button>
+    <button data-page="vision">Vision</button>
+    <button data-page="tasks">Tasks</button>
+    <button data-page="automation">Automation</button>
+    <button data-page="security">Security</button>
+    <button data-page="network">Network</button>
+    <button data-page="settings">Settings</button>
+  </nav>
+
+  <main>
+
+    <!-- ===================== HOME ===================== -->
+    <section class="page active" id="page-home">
+      <div class="page-header">
+        <h1>Home / Command Overview</h1>
+        <p>Final-system dashboard — live status across every E.D.E.A.T.H. subsystem.</p>
+      </div>
+
+      <div class="grid grid-4" id="home-metrics"></div>
+
+      <div class="section-label">Personal Assistant</div>
+      <div class="grid grid-3">
+        <div class="panel">
+          <div class="panel-head"><span class="panel-title"><span class="dot"></span>Today</span></div>
+          <div class="panel-body row-list">
+            <div class="row"><div class="rt"><div class="title">Project meeting</div><div class="sub">10:00 AM · Calendar</div></div></div>
+            <div class="row"><div class="rt"><div class="title">Gym</div><div class="sub">6:00 PM · Routine</div></div></div>
+            <div class="row"><div class="rt"><div class="title">Study session</div><div class="sub">Tomorrow · Calendar</div></div></div>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="panel-head"><span class="panel-title"><span class="dot"></span>Reminders</span></div>
+          <div class="panel-body row-list">
+            <div class="row"><div class="rt"><div class="title">Finish AI report</div><div class="sub">Due today</div></div></div>
+            <div class="row"><div class="rt"><div class="title">Call Mom</div><div class="sub">Due today</div></div></div>
+            <div class="row"><div class="rt"><div class="title">Backup system</div><div class="sub">Due tomorrow</div></div></div>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="panel-head"><span class="panel-title"><span class="dot"></span>Weather &amp; Notes</span></div>
+          <div class="panel-body">
+            <div class="kv"><span class="k">Conditions</span><span class="v">Clear, 27°C</span></div>
+            <div class="kv"><span class="k">Wind</span><span class="v">9 km/h</span></div>
+            <div class="kv"><span class="k">Open notes</span><span class="v">4</span></div>
+            <div class="kv"><span class="k">Active projects</span><span class="v">24</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-label">System Health</div>
+      <div class="grid grid-4" id="health-grid"></div>
+      <div class="hint">Final-system prototype metrics. Values are simulated and deterministic, not sourced from real hardware.</div>
+
+      <div class="section-label">Recent Activity</div>
+      <div class="panel">
+        <div class="panel-body row-list" id="recent-activity"></div>
+      </div>
+    </section>
+
+    <!-- ===================== AI CORE ===================== -->
+    <section class="page" id="page-aicore">
+      <div class="page-header">
+        <h1>AI Core / Natural Conversation</h1>
+        <p>Reasoning, context, and planning engines with hybrid cloud/local provider routing.</p>
+      </div>
+
+      <div class="core-stage panel" style="margin-bottom:20px;">
+        <div class="panel-body">
+        <div class="core-wrap">
+          <div class="core-sweep"></div>
+          <div class="core-ring a"></div>
+          <div class="core-ring b"></div>
+          <div class="core-ring c"></div>
+          <div class="core-ring d"></div>
+          <div class="core-particles" id="core-particles"></div>
+          <div class="core-center"></div>
+        </div>
+        <div class="core-caption">
+          <div class="t1">E.D.E.A.T.H.</div>
+          <div class="t2">System Online · AI Core Active</div>
+          <div class="t3">Owner Authenticated</div>
+        </div>
+        </div>
+      </div>
+
+      <div class="grid grid-4">
+        <div class="panel"><div class="panel-body">
+          <div class="kv"><span class="k">AI Provider</span><span class="v">Hybrid AI</span></div>
+          <div class="kv"><span class="k">Primary Provider</span><span class="v">Cloud AI</span></div>
+          <div class="kv"><span class="k">Local AI</span><span class="v badge ok">Available</span></div>
+          <div class="kv"><span class="k">Fallback AI</span><span class="v badge ok">Ready</span></div>
+        </div></div>
+        <div class="panel"><div class="panel-body">
+          <div class="kv"><span class="k">Reasoning Engine</span><span class="v badge ok">Active</span></div>
+          <div class="kv"><span class="k">Context Engine</span><span class="v badge ok">Active</span></div>
+          <div class="kv"><span class="k">Planning Engine</span><span class="v badge ok">Active</span></div>
+          <div class="kv"><span class="k">Tool Router</span><span class="v badge crit">Protected</span></div>
+        </div></div>
+        <div class="panel"><div class="panel-body">
+          <div class="kv"><span class="k">Current Model</span><span class="v">Cloud Reasoning</span></div>
+          <div class="kv"><span class="k">Context Usage</span><span class="v">41%</span></div>
+          <div class="kv"><span class="k">Response Speed</span><span class="v">Fast</span></div>
+          <div class="kv"><span class="k">Connection</span><span class="v badge ok">Stable</span></div>
+        </div></div>
+        <div class="panel"><div class="panel-body">
+          <div class="kv"><span class="k">Local Model</span><span class="v badge ok">Ready</span></div>
+          <div class="kv"><span class="k">Vision Model</span><span class="v badge ok">Ready</span></div>
+          <div class="kv"><span class="k">Fast Model</span><span class="v badge ok">Ready</span></div>
+          <div><label class="hint" for="provider-select">Switch simulated provider</label>
+            <select class="select-field" id="provider-select" style="margin-top:6px;">
+              <option>Hybrid AI</option><option>Cloud Reasoning</option><option>Local Model</option><option>Fast Model</option>
+            </select>
+          </div>
+        </div></div>
+      </div>
+
+      <div class="section-label">Natural AI Chat</div>
+      <div class="panel chat-wrap">
+        <div class="panel-head">
+          <span class="panel-title"><span class="dot"></span>Conversation</span>
+          <span class="badge info">Provider: Hybrid AI</span>
+        </div>
+        <div class="chat-log" id="chat-log"></div>
+        <div class="chat-status-bar"><span>Conversation status: Active</span><span id="chat-model-indicator">Model: Cloud Reasoning</span></div>
+        <div class="chat-input-row">
+          <button class="icon-btn" title="Attach file">📎</button>
+          <input id="chat-input" type="text" placeholder="Message E.D.E.A.T.H. …" autocomplete="off">
+          <button class="icon-btn" title="Voice input" id="chat-voice-btn">🎙</button>
+          <button class="icon-btn" title="Send" id="chat-send-btn">➤</button>
+        </div>
+      </div>
+
+      <div class="section-label">Autonomous Agent</div>
+      <div class="panel">
+        <div class="panel-head"><span class="panel-title"><span class="dot"></span>Agent · Controlled Mode</span><span class="badge warn">Awaiting Approval</span></div>
+        <div class="panel-body">
+          <div class="kv"><span class="k">Goal</span><span class="v">Prepare development environment</span></div>
+          <ol style="margin:14px 0 14px 20px;font-size:12.5px;line-height:2;color:var(--text-2);">
+            <li>Check system status</li>
+            <li>Open development tools</li>
+            <li>Load current project</li>
+            <li>Check pending tasks</li>
+            <li>Prepare workspace</li>
+          </ol>
+          <div class="kv"><span class="k">Status</span><span class="v badge warn">Waiting for owner approval</span></div>
+          <div class="pill-row" style="margin-top:14px;">
+            <button class="btn primary small" data-agent="approve">Approve Plan</button>
+            <button class="btn small" data-agent="deny">Deny</button>
+            <button class="btn ghost small" data-agent="edit">Edit Plan</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== VOICE ===================== -->
+    <section class="page" id="page-voice">
+      <div class="page-header"><h1>Voice Core</h1><p>Wake-word activation, speech recognition, and text-to-speech.</p></div>
+      <div class="sim-note">⚠ Prototype simulation — microphone access disabled.</div>
+
+      <div class="two-col">
+        <div class="panel">
+          <div class="panel-head"><span class="panel-title"><span class="dot"></span>Voice HUD</span></div>
+          <div class="panel-body" style="text-align:center;">
+            <div class="mic-wrap">
+              <div class="mic-ring m1" id="mr1"></div>
+              <div class="mic-ring m2" id="mr2"></div>
+              <div class="mic-ring m3" id="mr3"></div>
+              <div class="mic-core">🎙</div>
+            </div>
+            <div class="waveform idle" id="waveform"></div>
+            <div class="transcript-box" id="voice-transcript">Awaiting wake word "EDEATH" …<span class="cursor"></span></div>
+            <div class="pill-row" style="justify-content:center;margin-top:16px;">
+              <button class="btn primary small" id="listen-start">Start Listening</button>
+              <button class="btn small" id="listen-stop">Stop Listening</button>
+              <button class="btn ghost small" id="voice-test">Test Voice</button>
+              <button class="btn ghost small" id="voice-change">Change Voice</button>
+            </div>
+          </div>
+        </div>
+        <div class="panel"><div class="panel-body">
+          <div class="kv"><span class="k">Wake Word</span><span class="v">EDEATH</span></div>
+          <div class="kv"><span class="k">Microphone</span><span class="v badge ok">Connected</span></div>
+          <div class="kv"><span class="k">Speech Recognition</span><span class="v badge ok">Online</span></div>
+          <div class="kv"><span class="k">Text-to-Speech</span><span class="v badge ok">Online</span></div>
+          <div class="kv"><span class="k">Owner Voice Profile</span><span class="v badge ok">Verified</span></div>
+          <div class="kv"><span class="k">Noise Filtering</span><span class="v badge ok">Active</span></div>
+          <div class="kv"><span class="k">Language</span><span class="v">English</span></div>
+          <div class="kv"><span class="k">Voice Latency</span><span class="v">Low</span></div>
+        </div></div>
+      </div>
+    </section>
+
+    <!-- ===================== MEMORY ===================== -->
+    <section class="page" id="page-memory">
+      <div class="page-header"><h1>Memory System</h1><p>Personal long-term memory across approved categories.</p></div>
+
+      <div class="grid grid-4">
+        <div class="panel"><div class="panel-body"><div class="metric-big">1,528</div><div class="metric-label">Total Memories</div></div></div>
+        <div class="panel"><div class="panel-body"><div class="metric-big">320</div><div class="metric-label">Personal Notes</div></div></div>
+        <div class="panel"><div class="panel-body"><div class="metric-big">24</div><div class="metric-label">Projects</div></div></div>
+        <div class="panel"><div class="panel-body"><div class="metric-big">18</div><div class="metric-label">Routines</div></div></div>
+        <div class="panel"><div class="panel-body"><div class="metric-big">64</div><div class="metric-label">Preferences</div></div></div>
+        <div class="panel"><div class="panel-body"><div class="metric-big">37</div><div class="metric-label">Skills Learned</div></div></div>
+        <div class="panel"><div class="panel-body"><div class="metric-big">12</div><div class="metric-label">Recent Memories</div></div></div>
+        <div class="panel"><div class="panel-body"><div class="metric-big">10</div><div class="metric-label">Categories</div></div></div>
+      </div>
+
+      <div class="section-label">Memory Graph</div>
+      <div class="panel"><div class="panel-body">
+        <div class="mem-graph" id="mem-graph"></div>
+        <div class="hint">Only approved memory categories are available to the AI.</div>
+      </div></div>
+
+      <div class="section-label">Controls</div>
+      <div class="pill-row">
+        <button class="btn primary small" data-sim="Search Memories">Search Memories</button>
+        <button class="btn small" data-sim="Add Memory">Add Memory</button>
+        <button class="btn small" data-sim="Forget Memory">Forget Memory</button>
+        <button class="btn ghost small" data-sim="Memory Privacy">Memory Privacy</button>
+        <button class="btn ghost small" data-sim="Memory Sync">Memory Sync</button>
+      </div>
+    </section>
+
+    <!-- ===================== WINDOWS ===================== -->
+    <section class="page" id="page-windows">
+      <div class="page-header"><h1>Windows Control</h1><p>HP Laptop · Windows 11 · Connected</p></div>
+      <div class="sim-note">⚠ Prototype action — real Windows execution requires permission-layer approval.</div>
+
+      <div class="grid grid-4" id="windows-metrics"></div>
+
+      <div class="section-label">Application Control</div>
+      <div class="panel"><div class="panel-body">
+        <div class="pill-row" id="windows-apps"></div>
+      </div></div>
+
+      <div class="two-col" style="margin-top:16px;">
+        <div class="panel">
+          <div class="panel-head"><span class="panel-title"><span class="dot"></span>File System</span></div>
+          <div class="panel-body pill-row">
+            <button class="btn small" data-sim="Search Files">Search Files</button>
+            <button class="btn small" data-sim="Open Folder">Open Folder</button>
+            <button class="btn small" data-sim="Create Folder">Create Folder</button>
+            <button class="btn small" data-sim="Create File">Create File</button>
+            <button class="btn small" data-sim="Organize Files">Organize Files</button>
+            <button class="btn ghost small" data-sim="Recent Files">Recent Files</button>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="panel-head"><span class="panel-title"><span class="dot"></span>System</span></div>
+          <div class="panel-body pill-row">
+            <button class="btn small" data-sim="System Information">System Info</button>
+            <button class="btn small" data-sim="Battery">Battery</button>
+            <button class="btn small" data-sim="Network">Network</button>
+            <button class="btn small" data-sim="Audio">Audio</button>
+            <button class="btn small" data-sim="Display">Display</button>
+            <button class="btn ghost small" data-sim="Power">Power</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-label">Automation Routines</div>
+      <div class="pill-row">
+        <button class="btn small" data-sim="Workspace Routine">Workspace Routine</button>
+        <button class="btn small" data-sim="Study Routine">Study Routine</button>
+        <button class="btn small" data-sim="Shutdown Routine">Shutdown Routine</button>
+        <button class="btn small" data-sim="Backup Routine">Backup Routine</button>
+      </div>
+    </section>
+
+    <!-- ===================== ANDROID ===================== -->
+    <section class="page" id="page-android">
+      <div class="page-header"><h1>Android Control</h1><p>Companion device — connected and synced.</p></div>
+      <div class="sim-note">⚠ Prototype action — real Android execution requires permission-layer approval.</div>
+
+      <div class="two-col">
+        <div class="phone">
+          <div class="phone-notch"></div>
+          <div class="phone-screen">
+            <div class="phone-status"><span id="phone-clock">--:--</span><span>72% 🔋</span></div>
+            <div class="notif-card"><div class="app">WhatsApp</div><div class="msg">3 new messages</div></div>
+            <div class="notif-card"><div class="app">Calendar</div><div class="msg">Meeting at 3:00 PM</div></div>
+            <div class="notif-card"><div class="app">Battery</div><div class="msg">72% remaining</div></div>
+            <div class="notif-card"><div class="app">E.D.E.A.T.H. Companion</div><div class="msg">Sync completed</div></div>
+          </div>
+        </div>
+        <div class="panel"><div class="panel-body">
+          <div class="kv"><span class="k">Phone</span><span class="v">Android</span></div>
+          <div class="kv"><span class="k">Battery</span><span class="v">72%</span></div>
+          <div class="kv"><span class="k">Wi‑Fi</span><span class="v badge ok">Connected</span></div>
+          <div class="kv"><span class="k">Mobile Network</span><span class="v badge ok">Strong</span></div>
+          <div class="kv"><span class="k">Bluetooth</span><span class="v badge ok">On</span></div>
+          <div class="kv"><span class="k">Location</span><span class="v badge warn">Available With Permission</span></div>
+          <div class="kv"><span class="k">Companion App</span><span class="v badge ok">Online</span></div>
+          <div class="pill-row" style="margin-top:16px;">
+            <button class="btn small" data-sim="Read Notifications">Read Notifications</button>
+            <button class="btn small" data-sim="Send Message">Send Message</button>
+            <button class="btn small" data-sim="Make Call">Make Call</button>
+            <button class="btn small" data-sim="Open App">Open App</button>
+            <button class="btn small" data-sim="Transfer File">Transfer File</button>
+            <button class="btn small" data-sim="Locate Device">Locate Device</button>
+            <button class="btn ghost small" data-sim="Sync Clipboard">Sync Clipboard</button>
+          </div>
+        </div></div>
+      </div>
+    </section>
+
+    <!-- ===================== VISION ===================== -->
+    <section class="page" id="page-vision">
+      <div class="page-header"><h1>Vision Core</h1><p>Screen, camera, and document understanding.</p></div>
+      <div class="sim-note">⚠ Prototype vision simulation — no real camera or screen access.</div>
+
+      <div class="two-col">
+        <div class="panel">
+          <div class="panel-head"><span class="panel-title"><span class="dot"></span>Live Camera</span></div>
+          <div class="panel-body">
+            <div class="vision-cam">
+              <div class="scan-line"></div>
+              <div class="box" style="top:30%;left:20%;width:38%;height:34%;"><span class="tag">Laptop 98%</span></div>
+              <div class="box" style="top:64%;left:24%;width:30%;height:14%;"><span class="tag">Keyboard 95%</span></div>
+              <div class="box" style="top:20%;left:66%;width:14%;height:16%;"><span class="tag">Cup 93%</span></div>
+              <div class="box" style="top:44%;left:70%;width:16%;height:22%;"><span class="tag">Phone 90%</span></div>
+            </div>
+            <div class="hint">E.D.E.A.T.H. is analyzing your environment. Scene: laptop on desk.</div>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="panel-head"><span class="panel-title"><span class="dot"></span>Screen Analysis</span></div>
+          <div class="panel-body">
+            <div class="kv"><span class="k">Application</span><span class="v">Visual Studio Code</span></div>
+            <div class="kv"><span class="k">Detected Content</span><span class="v">Python project</span></div>
+            <div class="kv"><span class="k">Code Type</span><span class="v">Python</span></div>
+            <div class="kv"><span class="k">Potential Task</span><span class="v">Development</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-label">Modules</div>
+      <div class="grid grid-3" id="vision-modules"></div>
+    </section>
+
+    <!-- ===================== TASKS ===================== -->
+    <section class="page" id="page-tasks">
+      <div class="page-header"><h1>Tasks</h1><p>Active, pending, and completed operations.</p></div>
+
+      <div class="grid grid-4">
+        <div class="panel"><div class="panel-body"><div class="metric-big">6</div><div class="metric-label">Tasks Today</div></div></div>
+        <div class="panel"><div class="panel-body"><div class="metric-big">3</div><div class="metric-label">Completed</div></div></div>
+        <div class="panel"><div class="panel-body"><div class="metric-big">2</div><div class="metric-label">Pending</div></div></div>
+        <div class="panel"><div class="panel-body"><div class="metric-big">92%</div><div class="metric-label">Success Rate</div></div></div>
+      </div>
+
+      <div class="section-label">Task List</div>
+      <div class="panel"><div class="panel-body" id="task-list"></div></div>
+      <div class="pill-row" style="margin-top:14px;">
+        <button class="btn primary small" data-sim="Add Task">Add Task</button>
+        <button class="btn small" data-sim="Pause Task">Pause Task</button>
+        <button class="btn small" data-sim="Cancel Task">Cancel Task</button>
+        <button class="btn ghost small" data-sim="View Details">View Details</button>
+      </div>
+    </section>
+
+    <!-- ===================== AUTOMATION ===================== -->
+    <section class="page" id="page-automation">
+      <div class="page-header"><h1>Automation Engine</h1><p>Multi-step routines, simulated only.</p></div>
+      <div class="badge ok" style="margin-bottom:16px;"><span class="led green"></span>Automation Engine Active</div>
+
+      <div class="grid grid-2" id="automation-list"></div>
+
+      <div class="pill-row" style="margin-top:16px;">
+        <button class="btn primary small" data-sim="New Automation">New Automation</button>
+        <button class="btn small" data-sim="Edit Automation">Edit</button>
+        <button class="btn small" data-sim="Run Automation Now">Run Now</button>
+        <button class="btn ghost small" data-sim="Disable Automation">Disable</button>
+      </div>
+    </section>
+
+    <!-- ===================== SECURITY ===================== -->
+    <section class="page" id="page-security">
+      <div class="page-header"><h1>Security Center</h1><p>Security Level: Maximum · Owner: Authorized</p></div>
+
+      <div class="section-label">Authentication Methods</div>
+      <div class="panel"><div class="panel-body">
+        <div class="kv"><span class="k">Windows Login</span><span class="v badge ok">Verified</span></div>
+        <div class="kv"><span class="k">Biometric Authentication</span><span class="v badge ok">Enabled</span></div>
+        <div class="kv"><span class="k">Voice Authentication</span><span class="v badge ok">Enabled</span></div>
+        <div class="kv"><span class="k">Device Trust</span><span class="v badge ok">Enabled</span></div>
+        <div class="kv"><span class="k">Session Authentication</span><span class="v badge ok">Active</span></div>
+        <div class="kv"><span class="k">Permission Layer</span><span class="v badge ok">Active</span></div>
+        <div class="kv"><span class="k">Audit Logging</span><span class="v badge ok">Enabled</span></div>
+        <div class="kv"><span class="k">Encryption</span><span class="v badge ok">Enabled</span></div>
+        <div class="kv"><span class="k">Remote Access Protection</span><span class="v badge ok">Active</span></div>
+        <div class="kv"><span class="k">Administrator Access</span><span class="v badge crit">Restricted</span></div>
+      </div></div>
+
+      <div class="section-label">Permission Categories</div>
+      <div class="grid grid-3">
+        <div class="panel"><div class="panel-head"><span class="panel-title" style="color:var(--green);">Safe Actions</span></div>
+          <div class="panel-body" style="font-size:12.5px;color:var(--text-2);line-height:2;">
+            Open approved apps<br>Read system information<br>Show notifications<br>Search approved folders
+          </div></div>
+        <div class="panel"><div class="panel-head"><span class="panel-title" style="color:var(--amber);">Confirmation Required</span></div>
+          <div class="panel-body" style="font-size:12.5px;color:var(--text-2);line-height:2;">
+            Send message<br>Make call<br>Delete file<br>Install application<br>Change system setting<br>Transfer private file
+          </div></div>
+        <div class="panel"><div class="panel-head"><span class="panel-title" style="color:var(--critical);">Blocked Without Owner</span></div>
+          <div class="panel-body" style="font-size:12.5px;color:var(--text-2);line-height:2;">
+            Disable security<br>Disable audit logging<br>Modify authentication<br>Grant unrestricted admin access<br>Execute unknown commands
+          </div></div>
+      </div>
+
+      <div class="section-label">Audit Log</div>
+      <div class="panel"><div class="panel-body log-console" id="audit-log"></div></div>
+
+      <div class="pill-row" style="margin-top:16px;">
+        <button class="btn primary small" data-sim="Lock EDEATH">Lock E.D.E.A.T.H.</button>
+        <button class="btn small" data-sim="View Audit Log">View Audit Log</button>
+        <button class="btn small" data-sim="Manage Permissions">Manage Permissions</button>
+        <button class="btn ghost small" data-sim="Security Test">Security Test</button>
+      </div>
+    </section>
+
+    <!-- ===================== NETWORK ===================== -->
+    <section class="page" id="page-network">
+      <div class="page-header"><h1>Network</h1><p>Connectivity across every linked subsystem.</p></div>
+
+      <div class="grid grid-4">
+        <div class="panel"><div class="panel-body"><div class="kv"><span class="k">Internet</span><span class="v badge ok">Online</span></div></div></div>
+        <div class="panel"><div class="panel-body"><div class="kv"><span class="k">Windows</span><span class="v badge ok">Connected</span></div></div></div>
+        <div class="panel"><div class="panel-body"><div class="kv"><span class="k">Android</span><span class="v badge ok">Connected</span></div></div></div>
+        <div class="panel"><div class="panel-body"><div class="kv"><span class="k">Cloud AI</span><span class="v badge ok">Connected</span></div></div></div>
+        <div class="panel"><div class="panel-body"><div class="kv"><span class="k">Local AI</span><span class="v badge ok">Available</span></div></div></div>
+        <div class="panel"><div class="panel-body"><div class="kv"><span class="k">Secure Tunnel</span><span class="v badge ok">Active</span></div></div></div>
+        <div class="panel"><div class="panel-body"><div class="kv"><span class="k">Latency</span><span class="v">32 ms</span></div></div></div>
+        <div class="panel"><div class="panel-body"><div class="kv"><span class="k">Data Transfer</span><span class="v">Low</span></div></div></div>
+      </div>
+
+      <div class="section-label">Network Diagram</div>
+      <div class="panel"><div class="panel-body">
+        <div class="net-diagram" id="net-diagram"></div>
+      </div></div>
+    </section>
+
+    <!-- ===================== SETTINGS ===================== -->
+    <section class="page" id="page-settings">
+      <div class="page-header"><h1>Settings</h1><p>Global configuration across every subsystem.</p></div>
+
+      <div class="grid grid-2">
+        <div class="panel"><div class="panel-head"><span class="panel-title"><span class="dot"></span>General</span></div>
+          <div class="panel-body">
+            <div class="kv"><span class="k">Theme</span><span class="v">Dark Red</span></div>
+            <div class="kv"><span class="k">Voice</span><span class="v">EDEATH Default</span></div>
+            <div class="kv"><span class="k">AI Provider</span><span class="v">Hybrid</span></div>
+            <div class="kv"><span class="k">Language</span><span class="v">English</span></div>
+          </div></div>
+        <div class="panel"><div class="panel-head"><span class="panel-title"><span class="dot"></span>Access &amp; Permissions</span></div>
+          <div class="panel-body">
+            <div class="kv"><span class="k">Memory</span><span class="v badge ok">Enabled</span></div>
+            <div class="kv"><span class="k">Android Sync</span><span class="v badge ok">Enabled</span></div>
+            <div class="kv"><span class="k">Windows Control</span><span class="v badge warn">Permission Required</span></div>
+            <div class="kv"><span class="k">Autonomous Actions</span><span class="v badge warn">Confirmation Required</span></div>
+            <div class="kv"><span class="k">Vision</span><span class="v badge warn">Permission Required</span></div>
+            <div class="kv"><span class="k">Owner Authentication</span><span class="v badge crit">Required</span></div>
+          </div></div>
+      </div>
+
+      <div class="section-label">Privacy Dashboard</div>
+      <div class="panel"><div class="panel-body">
+        <div class="kv"><span class="k">AI Data Sharing</span><span class="v">Minimum</span></div>
+        <div class="kv"><span class="k">Local Memory</span><span class="v badge ok">Enabled</span></div>
+        <div class="kv"><span class="k">Cloud Memory</span><span class="v badge crit">Disabled</span></div>
+        <div class="kv"><span class="k">Conversation Storage</span><span class="v">Local Only</span></div>
+        <div class="kv"><span class="k">Camera</span><span class="v">Ask Every Time</span></div>
+        <div class="kv"><span class="k">Microphone</span><span class="v">Wake Word Only</span></div>
+        <div class="kv"><span class="k">Location</span><span class="v">Ask Every Time</span></div>
+        <div class="kv"><span class="k">File Access</span><span class="v">Approved Folders Only</span></div>
+        <div class="kv"><span class="k">Privacy Mode</span><span class="v badge ok">Owner Controlled</span></div>
+      </div></div>
+
+      <div class="section-label">System Logs</div>
+      <div class="panel"><div class="panel-body log-console" id="settings-log"></div></div>
+    </section>
+
+  </main>
+
+  <footer class="app-footer">
+    <div class="tag">E.D.E.A.T.H.</div>
+    <div class="lines">Your AI.<br>Your Rules.<br>Your System.<br>Your Data.<br>Your Control.</div>
+    <div class="sign">E.D.E.A.T.H. — Always by your side.</div>
+  </footer>
+
+</div>
+
+<script>
+/* ==========================================================================
+   E.D.E.A.T.H. — Client-side prototype. Everything runs locally in-browser.
+   No shell commands, no eval/Function, no network requests, no real device
+   or file access. All actions below are simulated for demonstration only.
+   ========================================================================== */
+(function(){
+"use strict";
+
+/* ---------------------------------------------------------------------- */
+/* NotificationManager — toast + persistent log feed                      */
+/* ---------------------------------------------------------------------- */
+const NotificationManager = (function(){
+  const stack = document.getElementById('toast-stack');
+  function toast(title, sub){
+    const el = document.createElement('div');
+    el.className = 'toast';
+    el.innerHTML = '<div class="ti">●</div><div><div class="tt"></div><div class="ts"></div></div>';
+    el.querySelector('.tt').textContent = title;
+    el.querySelector('.ts').textContent = sub || '';
+    stack.appendChild(el);
+    setTimeout(()=>{ el.classList.add('out'); setTimeout(()=>el.remove(),320); }, 4200);
+  }
+  return { toast };
+})();
+
+/* ---------------------------------------------------------------------- */
+/* LogManager — capped rolling log, feeds Security + Settings consoles    */
+/* ---------------------------------------------------------------------- */
+const LogManager = (function(){
+  const MAX = 100;
+  let entries = [];
+  const targets = [];
+  function ts(){
+    const d = new Date();
+    return d.toTimeString().slice(0,8);
+  }
+  function render(){
+    targets.forEach(t=>{
+      if(!t) return;
+      t.innerHTML = entries.slice(-40).reverse().map(e=>
+        '<div class="l '+e.level+'"><span class="ts">'+e.time+'</span><span class="tag">['+e.level+']</span><span>'+e.text+'</span></div>'
+      ).join('');
+    });
+  }
+  function log(level, text){
+    entries.push({level, text, time: ts()});
+    if(entries.length > MAX) entries = entries.slice(-MAX);
+    render();
+  }
+  function attach(el){ targets.push(el); render(); }
+  return { log, attach };
+})();
+
+/* ---------------------------------------------------------------------- */
+/* PermissionManager — every simulated action funnels through here        */
+/* ---------------------------------------------------------------------- */
+const PermissionManager = (function(){
+  function request(actionLabel){
+    LogManager.log('SECURITY', actionLabel + ' requested');
+    LogManager.log('SECURITY', 'Permission approved (simulated)');
+    LogManager.log('INFO', actionLabel + ' — action simulated');
+    NotificationManager.toast('FINAL SYSTEM PROTOTYPE', actionLabel + ' — action simulated');
+    RecentActivity.push(actionLabel + ' — simulated');
+  }
+  return { request };
+})();
+
+/* ---------------------------------------------------------------------- */
+/* RecentActivity feed (Home)                                             */
+/* ---------------------------------------------------------------------- */
+const RecentActivity = (function(){
+  const el = () => document.getElementById('recent-activity');
+  let items = [
+    '17:21 — User asked E.D.E.A.T.H. to prepare workspace',
+    '17:22 — Permission granted',
+    '17:22 — Workspace routine simulated',
+    '17:23 — Memory accessed',
+    '17:24 — Android sync completed'
+  ];
+  function render(){
+    const c = el(); if(!c) return;
+    c.innerHTML = items.slice(-8).reverse().map(t=>
+      '<div class="row"><div class="rt"><div class="title">'+t+'</div></div></div>'
+    ).join('');
+  }
+  function push(text){
+    const d = new Date();
+    const hh = String(d.getHours()).padStart(2,'0'), mm = String(d.getMinutes()).padStart(2,'0');
+    items.push(hh+':'+mm+' — '+text);
+    render();
+  }
+  return { push, render };
+})();
+
+/* ---------------------------------------------------------------------- */
+/* NavigationManager                                                      */
+/* ---------------------------------------------------------------------- */
+const NavigationManager = (function(){
+  function init(){
+    document.querySelectorAll('#tabs button').forEach(btn=>{
+      btn.addEventListener('click', ()=>go(btn.dataset.page));
+    });
+  }
+  function go(id){
+    document.querySelectorAll('#tabs button').forEach(b=>b.classList.toggle('active', b.dataset.page===id));
+    document.querySelectorAll('.page').forEach(p=>p.classList.toggle('active', p.id==='page-'+id));
+    window.scrollTo({top:0, behavior:'smooth'});
+  }
+  return { init };
+})();
+
+/* ---------------------------------------------------------------------- */
+/* AuthenticationManager                                                  */
+/* ---------------------------------------------------------------------- */
+const AuthenticationManager = (function(){
+  const overlay = document.getElementById('auth-overlay');
+  const statusBox = document.getElementById('auth-status');
+  const verifyBtn = document.getElementById('verify-owner-btn');
+  const lockBtn = document.getElementById('emergency-lock-btn');
+
+  function addLine(text, ok){
+    const line = document.createElement('div');
+    line.className = 'line';
+    line.innerHTML = (ok?'<span class="ok">✓</span>':'<span>›</span>') + '<span>'+text+'</span>';
+    statusBox.appendChild(line);
+    requestAnimationFrame(()=>line.classList.add('show'));
+  }
+
+  function runSequence(){
+    verifyBtn.disabled = true;
+    statusBox.innerHTML = '';
+    const steps = [
+      ['Scanning credentials…', false],
+      ['Identity Verified', true],
+      ['Voice Profile Verified', true],
+      ['Trusted Device Verified', true],
+      ['ACCESS GRANTED', true]
+    ];
+    steps.forEach((s,i)=>{
+      setTimeout(()=>addLine(s[0], s[1]), i*450);
+    });
+    setTimeout(()=>{
+      overlay.classList.add('hidden');
+      document.getElementById('app').classList.add('ready');
+      LogManager.log('SECURITY','Owner authenticated');
+      LogManager.log('INFO','E.D.E.A.T.H. core initialized');
+      NotificationManager.toast('Owner Verified','Access granted to E.D.E.A.T.H.');
+      SystemMonitor.start();
+    }, steps.length*450 + 500);
+  }
+
+  function init(){
+    verifyBtn.addEventListener('click', runSequence);
+    lockBtn.addEventListener('click', ()=>{
+      addLine('Emergency lock engaged — session halted.', true);
+      NotificationManager.toast('Emergency Lock','Session halted (simulated).');
+    });
+  }
+  return { init };
+})();
+
+/* ---------------------------------------------------------------------- */
+/* AIChatManager                                                          */
+/* ---------------------------------------------------------------------- */
+const AIChatManager = (function(){
+  const log = document.getElementById('chat-log');
+  const input = document.getElementById('chat-input');
+  const sendBtn = document.getElementById('chat-send-btn');
+  const voiceBtn = document.getElementById('chat-voice-btn');
+
+  const responses = [
+    [/system|online|status/i, 'Windows, Android, memory, vision, automation, security, and communication systems are currently operational in this final-system prototype.'],
+    [/workspace|open my dev/i, 'Development workspace request received. In the real system this action would be verified by the permission layer before execution.'],
+    [/remember|memory/i, 'I currently have access to your approved personal memory categories: preferences, projects, routines, devices, and goals.'],
+    [/screen|analy[sz]e/i, 'Screen-analysis request received. Vision subsystem ready.'],
+    [/task|todo/i, 'You have 2 pending tasks and 1 task currently in progress. Would you like a summary?'],
+    [/hello|hi\b|hey/i, 'Hello. All primary systems are online. How can I assist you?']
+  ];
+
+  function bubble(role, text, tag){
+    const wrap = document.createElement('div');
+    wrap.className = 'msg ' + role;
+    const time = new Date().toTimeString().slice(0,5);
+    wrap.innerHTML = '<div class="bubble"></div><div class="meta">'+(role==='ai'?'E.D.E.A.T.H.':'You')+' · '+time+(tag?' · '+tag:'')+'</div>';
+    wrap.querySelector('.bubble').textContent = text;
+    log.appendChild(wrap);
+    log.scrollTop = log.scrollHeight;
+  }
+
+  function reply(userText){
+    const typing = document.createElement('div');
+    typing.className = 'msg ai';
+    typing.innerHTML = '<div class="typing"><span></span><span></span><span></span></div>';
+    log.appendChild(typing);
+    log.scrollTop = log.scrollHeight;
+
+    setTimeout(()=>{
+      typing.remove();
+      let text = "Request received. In the real system this would be routed through the reasoning and planning engines before any action is taken.";
+      for(const [re, resp] of responses){
+        if(re.test(userText)){ text = resp; break; }
+      }
+      bubble('ai', text, 'Simulated');
+      LogManager.log('INFO','AI response generated (simulated)');
+    }, 700 + Math.random()*500);
+  }
+
+  function send(){
+    const val = input.value.trim();
+    if(!val) return;
+    bubble('user', val);
+    input.value = '';
+    reply(val);
+  }
+
+  function init(){
+    bubble('ai', 'Good evening. All primary systems are online. How can I assist you?', 'Startup');
+    sendBtn.addEventListener('click', send);
+    input.addEventListener('keydown', e=>{ if(e.key==='Enter') send(); });
+    voiceBtn.addEventListener('click', ()=> NotificationManager.toast('Voice Input','Prototype simulation — microphone access disabled.'));
+  }
+  return { init };
+})();
+
+/* ---------------------------------------------------------------------- */
+/* VoiceSystem                                                            */
+/* ---------------------------------------------------------------------- */
+const VoiceSystem = (function(){
+  const waveform = document.getElementById('waveform');
+  const transcript = document.getElementById('voice-transcript');
+  const rings = [document.getElementById('mr1'),document.getElementById('mr2'),document.getElementById('mr3')];
+  let listening = false, timer = null;
+
+  function buildBars(){
+    waveform.innerHTML = '';
+    for(let i=0;i<28;i++){
+      const s = document.createElement('span');
+      waveform.appendChild(s);
+    }
+  }
+
+  const phrases = [
+    'Listening for command…',
+    '"E.D.E.A.T.H., what systems are online?"',
+    'Processing speech input…',
+    'Wake word confirmed. Owner voice profile matched.'
+  ];
+  let pIdx = 0;
+
+  function start(){
+    if(listening) return;
+    listening = true;
+    waveform.classList.remove('idle');
+    rings.forEach(r=>r.classList.add('listening'));
+    transcript.innerHTML = 'Listening…<span class="cursor"></span>';
+    LogManager.log('INFO','Voice listening started (simulated)');
+    NotificationManager.toast('Voice Core','Listening started — prototype simulation.');
+    timer = setInterval(()=>{
+      transcript.innerHTML = phrases[pIdx % phrases.length] + '<span class="cursor"></span>';
+      pIdx++;
+    }, 1800);
+  }
+  function stop(){
+    listening = false;
+    waveform.classList.add('idle');
+    rings.forEach(r=>r.classList.remove('listening'));
+    clearInterval(timer);
+    transcript.innerHTML = 'Awaiting wake word "EDEATH" …<span class="cursor"></span>';
+    LogManager.log('INFO','Voice listening stopped (simulated)');
+  }
+
+  function init(){
+    buildBars();
+    document.getElementById('listen-start').addEventListener('click', start);
+    document.getElementById('listen-stop').addEventListener('click', stop);
+    document.getElementById('voice-test').addEventListener('click', ()=>{
+      NotificationManager.toast('Voice Test','"Hello, all systems are functioning normally." (simulated)');
+    });
+    document.getElementById('voice-change').addEventListener('click', ()=>{
+      NotificationManager.toast('Voice Profile','Voice option cycled (simulated).');
+    });
+  }
+  return { init };
+})();
+
+/* ---------------------------------------------------------------------- */
+/* MemorySystem — graph render                                            */
+/* ---------------------------------------------------------------------- */
+const MemorySystem = (function(){
+  const nodes = ['Work','Projects','Study','Family','Health','Finance','Devices','Preferences','Goals'];
+  function init(){
+    const wrap = document.getElementById('mem-graph');
+    if(!wrap) return;
+    const w = wrap.clientWidth || 800, h = 380;
+    const cx = w/2, cy = h/2;
+    const r = Math.min(w,h)/2 - 60;
+    let svg = '<svg viewBox="0 0 '+w+' '+h+'">';
+    const positions = nodes.map((n,i)=>{
+      const angle = (i / nodes.length) * Math.PI*2 - Math.PI/2;
+      const x = cx + r*Math.cos(angle);
+      const y = cy + r*Math.sin(angle);
+      svg += '<line x1="'+cx+'" y1="'+cy+'" x2="'+x+'" y2="'+y+'"/>';
+      return {n,x,y};
+    });
+    svg += '</svg>';
+    wrap.innerHTML = svg;
+    const center = document.createElement('div');
+    center.className = 'mem-node center';
+    center.textContent = 'You';
+    center.style.left = cx+'px'; center.style.top = cy+'px';
+    wrap.appendChild(center);
+    positions.forEach(p=>{
+      const el = document.createElement('div');
+      el.className = 'mem-node';
+      el.textContent = p.n;
+      el.style.left = p.x+'px'; el.style.top = p.y+'px';
+      wrap.appendChild(el);
+    });
+  }
+  return { init };
+})();
+
+/* ---------------------------------------------------------------------- */
+/* WindowsSystem                                                          */
+/* ---------------------------------------------------------------------- */
+const WindowsSystem = (function(){
+  function metrics(){
+    const el = document.getElementById('windows-metrics');
+    const data = [
+      ['CPU','34%'],['RAM','58%'],['Disk','71%'],['Battery','86%'],
+      ['Uptime','4h 12m'],['Apps Running','9'],['Processes','182'],['Services','96']
+    ];
+    el.innerHTML = data.map(d=>
+      '<div class="panel"><div class="panel-body"><div class="metric-big" style="font-size:20px;">'+d[1]+'</div><div class="metric-label">'+d[0]+'</div></div></div>'
+    ).join('');
+  }
+  function apps(){
+    const el = document.getElementById('windows-apps');
+    ['Chrome','Visual Studio Code','File Explorer','Notepad','Spotify','Terminal'].forEach(a=>{
+      const b = document.createElement('button');
+      b.className = 'btn small'; b.textContent = a;
+      b.addEventListener('click', ()=> PermissionManager.request('Open '+a));
+      el.appendChild(b);
+    });
+  }
+  function init(){ metrics(); apps(); }
+  return { init };
+})();
+
+/* ---------------------------------------------------------------------- */
+/* AndroidSystem — phone clock                                            */
+/* ---------------------------------------------------------------------- */
+const AndroidSystem = (function(){
+  function tick(){
+    const el = document.getElementById('phone-clock');
+    if(el) el.textContent = new Date().toTimeString().slice(0,5);
+  }
+  function init(){ tick(); setInterval(tick, 30000); }
+  return { init };
+})();
+
+/* ---------------------------------------------------------------------- */
+/* VisionSystem                                                           */
+/* ---------------------------------------------------------------------- */
+const VisionSystem = (function(){
+  function init(){
+    const el = document.getElementById('vision-modules');
+    const mods = [
+      ['Screen Analysis','Online'],['Camera Vision','Online'],['Object Detection','Online'],
+      ['Text Recognition','Online'],['Environment Analysis','Online'],['Document Understanding','Online']
+    ];
+    el.innerHTML = mods.map(m=>
+      '<div class="panel"><div class="panel-body"><div class="kv"><span class="k">'+m[0]+'</span><span class="v badge ok">'+m[1]+'</span></div></div></div>'
+    ).join('');
+  }
+  return { init };
+})();
+
+/* ---------------------------------------------------------------------- */
+/* TaskManager                                                            */
+/* ---------------------------------------------------------------------- */
+const TaskManager = (function(){
+  const tasks = [
+    ['Backup important files','Completed',100],
+    ['Check system updates','Completed',100],
+    ['Organize downloads folder','Completed',100],
+    ['Generate project report','In Progress',62],
+    ['Optimize development workspace','Pending',0],
+    ['Review upcoming meetings','Pending',0]
+  ];
+  function statusClass(s){
+    if(s==='Completed') return 'green';
+    if(s==='In Progress') return '';
+    return 'amber';
+  }
+  function init(){
+    const el = document.getElementById('task-list');
+    el.innerHTML = tasks.map(t=>
+      '<div class="row" style="display:block;">'+
+        '<div style="display:flex;justify-content:space-between;margin-bottom:6px;">'+
+          '<span>'+t[0]+'</span><span class="badge '+(t[1]==='Completed'?'ok':t[1]==='Pending'?'warn':'info')+'">'+t[1]+'</span>'+
+        '</div>'+
+        '<div class="progress '+statusClass(t[1])+'"><span style="width:'+t[2]+'%;"></span></div>'+
+      '</div>'
+    ).join('');
+  }
+  return { init };
+})();
+
+/* ---------------------------------------------------------------------- */
+/* AutomationManager                                                      */
+/* ---------------------------------------------------------------------- */
+const AutomationManager = (function(){
+  const routines = [
+    ['Morning Routine',['Open calendar','Check reminders','Show weather','Prepare workspace'], true],
+    ['Development Mode',['Open VS Code','Open terminal','Open project','Start music'], true],
+    ['Leaving Home',['Lock Windows','Check phone battery','Save active files'], false],
+    ['Study Mode',['Silence notifications','Open study materials','Start focus timer'], false],
+    ['Backup Routine',['Backup important folders'], true]
+  ];
+  function init(){
+    const el = document.getElementById('automation-list');
+    el.innerHTML = routines.map((r,i)=>
+      '<div class="panel"><div class="panel-head">'+
+        '<span class="panel-title"><span class="dot"></span>'+r[0]+'</span>'+
+        '<div class="switch"><input type="checkbox" id="auto-'+i+'" '+(r[2]?'checked':'')+'><label for="auto-'+i+'"></label></div>'+
+      '</div><div class="panel-body" style="font-size:12px;color:var(--text-2);line-height:1.9;">'+
+        r[1].join('<br>')+
+      '</div></div>'
+    ).join('');
+    el.querySelectorAll('input[type="checkbox"]').forEach((cb,i)=>{
+      cb.addEventListener('change', ()=>{
+        PermissionManager.request(routines[i][0] + (cb.checked?' enabled':' disabled'));
+      });
+    });
+  }
+  return { init };
+})();
+
+/* ---------------------------------------------------------------------- */
+/* SecurityManager — audit log seed                                       */
+/* ---------------------------------------------------------------------- */
+const SecurityManager = (function(){
+  function init(){
+    LogManager.attach(document.getElementById('audit-log'));
+    LogManager.attach(document.getElementById('settings-log'));
+  }
+  return { init };
+})();
+
+/* ---------------------------------------------------------------------- */
+/* NetworkManager — diagram render                                        */
+/* ---------------------------------------------------------------------- */
+const NetworkManager = (function(){
+  const nodes = ['Windows','Android','Cloud AI','Local AI','Memory','Vision'];
+  function init(){
+    const wrap = document.getElementById('net-diagram');
+    if(!wrap) return;
+    const w = wrap.clientWidth || 800, h = 340;
+    const cx = w/2, cy = h/2, r = Math.min(w,h)/2 - 70;
+    let svg = '<svg viewBox="0 0 '+w+' '+h+'">';
+    const positions = nodes.map((n,i)=>{
+      const angle = (i/nodes.length)*Math.PI*2 - Math.PI/2;
+      const x = cx + r*Math.cos(angle), y = cy + r*Math.sin(angle);
+      svg += '<line x1="'+cx+'" y1="'+cy+'" x2="'+x+'" y2="'+y+'"/>';
+      return {n,x,y};
+    });
+    svg += '</svg>';
+    wrap.innerHTML = svg;
+    const core = document.createElement('div');
+    core.className = 'net-core'; core.textContent = 'E.D.E.A.T.H. CORE';
+    core.style.left = (cx-50)+'px'; core.style.top = (cy-50)+'px';
+    wrap.appendChild(core);
+    positions.forEach(p=>{
+      const el = document.createElement('div');
+      el.className = 'net-node'; el.textContent = p.n;
+      el.style.left = (p.x-40)+'px'; el.style.top = (p.y-14)+'px';
+      wrap.appendChild(el);
+    });
+  }
+  return { init };
+})();
+
+/* ---------------------------------------------------------------------- */
+/* SystemMonitor — deterministic pseudo-live metrics                      */
+/* ---------------------------------------------------------------------- */
+const SystemMonitor = (function(){
+  let t = 0;
+  function wave(base, amp, speed, offset){
+    return base + amp * Math.sin(t*speed + offset);
+  }
+  function render(){
+    t += 1;
+    const cpu = Math.round(wave(38,10,0.09,0));
+    const ram = Math.round(wave(54,8,0.06,1));
+    const disk = 71;
+    const battery = Math.max(20, Math.round(90 - t*0.02));
+    const net = Math.round(wave(3,2,0.12,2));
+    const aiLat = Math.round(wave(32,6,0.15,3));
+    const androidBat = 72;
+    const health = Math.round(100 - (cpu*0.15 + ram*0.1 + (100-battery)*0.05));
+
+    const el = document.getElementById('health-grid');
+    if(el){
+      const data = [
+        ['CPU', cpu+'%', cpu>75?'amber':''],
+        ['RAM', ram+'%', ram>80?'amber':''],
+        ['Disk', disk+'%',''],
+        ['Battery', battery+'%', battery<30?'amber':''],
+        ['Network Load', net+' mbps',''],
+        ['AI Latency', aiLat+' ms',''],
+        ['Android Battery', androidBat+'%',''],
+        ['System Health', health+'%', health<60?'amber':'green']
+      ];
+      el.innerHTML = data.map(d=>
+        '<div class="panel"><div class="panel-body">'+
+          '<div class="kv"><span class="k">'+d[0]+'</span><span class="v">'+d[1]+'</span></div>'+
+          '<div class="progress '+(d[2]||'')+'" style="margin-top:6px;"><span style="width:'+parseInt(d[1])+'%;"></span></div>'+
+        '</div></div>'
+      ).join('');
+    }
+  }
+  function homeMetrics(){
+    const el = document.getElementById('home-metrics');
+    if(!el) return;
+    const data = [
+      ['12','Active Systems'],['1,528','Total Memories'],['24','Pending Permissions Cleared Today'],['99.8%','Uptime']
+    ];
+    el.innerHTML = data.map(d=>
+      '<div class="panel"><div class="panel-body"><div class="metric-big">'+d[0]+'</div><div class="metric-label">'+d[1]+'</div></div></div>'
+    ).join('');
+  }
+  function start(){
+    homeMetrics();
+    render();
+    setInterval(render, 3000);
+  }
+  return { start };
+})();
+
+/* ---------------------------------------------------------------------- */
+/* Clock                                                                  */
+/* ---------------------------------------------------------------------- */
+function startClock(){
+  function tick(){
+    const d = new Date();
+    document.getElementById('clock-time').textContent = d.toTimeString().slice(0,8);
+    document.getElementById('clock-date').textContent = d.toLocaleDateString(undefined,{weekday:'short',year:'numeric',month:'short',day:'numeric'});
+  }
+  tick();
+  setInterval(tick, 1000);
+}
+
+/* ---------------------------------------------------------------------- */
+/* Ambient core particles                                                 */
+/* ---------------------------------------------------------------------- */
+function buildParticles(){
+  const wrap = document.getElementById('core-particles');
+  if(!wrap) return;
+  for(let i=0;i<14;i++){
+    const s = document.createElement('span');
+    const angle = Math.random()*Math.PI*2;
+    const rad = 70 + Math.random()*40;
+    s.style.left = (130 + rad*Math.cos(angle))+'px';
+    s.style.top = (130 + rad*Math.sin(angle))+'px';
+    s.style.animationDelay = (Math.random()*4)+'s';
+    s.style.animationDuration = (4+Math.random()*4)+'s';
+    wrap.appendChild(s);
+  }
+}
+
+/* ---------------------------------------------------------------------- */
+/* Generic simulated-action buttons (data-sim attribute)                  */
+/* ---------------------------------------------------------------------- */
+function bindSimButtons(){
+  document.querySelectorAll('[data-sim]').forEach(btn=>{
+    btn.addEventListener('click', ()=> PermissionManager.request(btn.dataset.sim));
+  });
+  document.querySelectorAll('[data-agent]').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const action = btn.dataset.agent;
+      if(action==='approve'){
+        PermissionManager.request('Autonomous agent plan: Prepare development environment');
+        NotificationManager.toast('Agent Plan Approved','Executing simulated steps…');
+      } else if(action==='deny'){
+        LogManager.log('WARNING','Agent plan denied by owner');
+        NotificationManager.toast('Agent Plan Denied','Plan discarded.');
+      } else {
+        NotificationManager.toast('Edit Plan','Plan editor opened (simulated).');
+      }
+    });
+  });
+}
+
+/* ---------------------------------------------------------------------- */
+/* Boot sequence                                                          */
+/* ---------------------------------------------------------------------- */
+function boot(){
+  NavigationManager.init();
+  AuthenticationManager.init();
+  AIChatManager.init();
+  VoiceSystem.init();
+  MemorySystem.init();
+  WindowsSystem.init();
+  AndroidSystem.init();
+  VisionSystem.init();
+  TaskManager.init();
+  AutomationManager.init();
+  SecurityManager.init();
+  NetworkManager.init();
+  RecentActivity.render();
+  startClock();
+  buildParticles();
+  bindSimButtons();
+
+  // seed initial log entries
+  ['E.D.E.A.T.H. core initialized','AI provider connected','Windows device connected',
+   'Android companion online','Memory database loaded','Vision subsystem ready',
+   'Security layer active','Automation engine ready'
+  ].forEach(t => LogManager.log('INFO', t));
+}
+
+document.addEventListener('DOMContentLoaded', boot);
+
+})();
+</script>
+</body>
+</html>
